@@ -5,13 +5,15 @@
 - [Azure AZ-204](#azure-az-204)
   - [Content](#content)
   - [Information](#information)
-    - [Prerequisites](#prerequisites)
+  - [Prerequisites](#prerequisites)
+  - [AZ-204 relevant](#az-204-relevant)
+  - [Study Guides](#study-guides)
   - [Service Principal vs. Managed Identities](#service-principal-vs-managed-identities)
     - [Service Principal](#service-principal)
     - [Managed Identities](#managed-identities)
   - [Use the portal to create an Azure AD application and service principal that can access resources](#use-the-portal-to-create-an-azure-ad-application-and-service-principal-that-can-access-resources)
   - [Microsoft identity platform](#microsoft-identity-platform)
-  - [1. Infrastructure](#1-infrastructure)
+  - [1. Develop Azure compute solutions (25-30%)](#1-develop-azure-compute-solutions-25-30)
     - [VM](#vm)
     - [Docker](#docker)
       - [Docker Compose](#docker-compose)
@@ -38,7 +40,7 @@
         - [Create durable functions workflow](#create-durable-functions-workflow)
         - [Sub-Orchestrations](#sub-orchestrations)
       - [Custom Handlers](#custom-handlers)
-  - [2. Storage](#2-storage)
+  - [2. Develop for Azure storage (15-20%)](#2-develop-for-azure-storage-15-20)
     - [2.1 Develop Solutions with Cosmos DB Storage](#21-develop-solutions-with-cosmos-db-storage)
       - [Consistency](#consistency)
       - [Container](#container)
@@ -52,7 +54,7 @@
       - [Lease](#lease)
       - [Immutable](#immutable)
       - [Move items in Blob Storage between Storage Accounts or containers](#move-items-in-blob-storage-between-storage-accounts-or-containers)
-  - [3 Implement Azure Security (20-25%)](#3-implement-azure-security-20-25)
+  - [3. Implement Azure security (20-25%)](#3-implement-azure-security-20-25)
     - [3.1 Implement User Authentication and Authorization](#31-implement-user-authentication-and-authorization)
       - [a) Management Plane: RBAC (Role Based Access Control)](#a-management-plane-rbac-role-based-access-control)
         - [RBAC: Key items](#rbac-key-items)
@@ -77,16 +79,39 @@
         - [Purge protection](#purge-protection)
       - [Key Vault: Keys](#key-vault-keys)
       - [Key Vault: Certificates](#key-vault-certificates)
-  - [4 Monitor, Troubleshoot, and Optimize Azure Solutions](#4-monitor-troubleshoot-and-optimize-azure-solutions)
-  - [5 Connect To and Consume Azure Services and Third-Party Services](#5-connect-to-and-consume-azure-services-and-third-party-services)
+  - [4. Monitor, troubleshoot, and optimize Azure solutions (15-20%)](#4-monitor-troubleshoot-and-optimize-azure-solutions-15-20)
+    - [4.1 Integrate caching and content delivery](#41-integrate-caching-and-content-delivery)
+      - [Configuring Cache and Expiration Policies in Azure CDN](#configuring-cache-and-expiration-policies-in-azure-cdn)
+      - [Configuring Cache and Expiration Policies for Azure Redis Cache](#configuring-cache-and-expiration-policies-for-azure-redis-cache)
+      - [Implementing Application Caching Pattern](#implementing-application-caching-pattern)
+      - [Configuring Redis Cache *)](#configuring-redis-cache-)
+    - [4.2 Instrument Solutions for Monitoring and Logging](#42-instrument-solutions-for-monitoring-and-logging)
+      - [Azure Monitor](#azure-monitor)
+      - [Application Insights (Part of Azure Monitor)](#application-insights-part-of-azure-monitor)
+      - [Azure Application Insights Web Tests](#azure-application-insights-web-tests)
+      - [Transient Faults](#transient-faults)
+  - [5. Connect to and consume Azure services and third-party services (15-20%)](#5-connect-to-and-consume-azure-services-and-third-party-services-15-20)
 
 ## Information
 
 Source: <https://app.pluralsight.com/paths/certificate/developing-solutions-for-microsoft-azure-az-204>
 
-### Prerequisites
+## Prerequisites
 
 Omnishare? --> OmniSharp?
+
+## AZ-204 relevant
+
+- Have a deeper look :)
+- learn all statements, but not the arguments:
+  - example: `az webapp log config --name ...`
+
+## Study Guides
+
+- PluralSight <https://app.pluralsight.com/paths/certificate/developing-solutions-for-microsoft-azure-az-204>
+- Microsoft Learn: <https://docs.microsoft.com/en-us/learn/certifications/azure-developer/>
+- Check 'Download exam skills outline' from <https://docs.microsoft.com/en-us/learn/certifications/exams/az-204#certification-exams>
+- <https://www.thomasmaurer.ch/2020/03/az-204-study-guide-developing-solutions-for-microsoft-azure/>  
 
 ## Service Principal vs. Managed Identities
 
@@ -130,7 +155,7 @@ var containerClient = new BlobContainerClient(ur, defaultCredential);
 
 Samples: <https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/>
 
-## 1. Infrastructure
+## 1. Develop Azure compute solutions (25-30%)
 
 ### VM
 
@@ -542,7 +567,7 @@ For not supported platforms (Rust, GO, ...)
 - update host.json (`defaultExecutablePath` and `enableForwardingHttpRequest`)
 - test locally `func start` or publish to Azure
 
-## 2. Storage
+## 2. Develop for Azure storage (15-20%)
 
 ### 2.1 Develop Solutions with Cosmos DB Storage
 
@@ -645,7 +670,7 @@ via Access Policy:
 
 #### Move items in Blob Storage between Storage Accounts or containers
 
-## 3 Implement Azure Security (20-25%)
+## 3. Implement Azure security (20-25%)
 
 ### 3.1 Implement User Authentication and Authorization
 
@@ -938,7 +963,7 @@ Authorization
 - Custom Claims
 - App roles
 
-6 Demos (each entity * each authorization)
+6 Demos (each entity x each authorization)
 
 ### 3.2: Implement secure cloud solutions
 
@@ -1166,6 +1191,554 @@ Demo: use certificate with SDK (using managed identity)
     var certificate = client.GetCertificateAsync(_certificateName).Result;
     ```
 
-## 4 Monitor, Troubleshoot, and Optimize Azure Solutions
+## 4. Monitor, troubleshoot, and optimize Azure solutions (15-20%)
 
-## 5 Connect To and Consume Azure Services and Third-Party Services
+PluralSight course by Daniel Krzyczkowski
+
+### 4.1 Integrate caching and content delivery
+
+#### Configuring Cache and Expiration Policies in Azure CDN
+
+- Globally distributed network
+- Reduced asset load times
+- Reduced hosting bandwidth
+- Increased availability and redundancy
+- Protection from denial-of-service attacks
+
+Types:
+
+- Static Content
+  - Images
+  - CSS files
+  - JS files
+- Dynamic Content
+  - Changes on user interaction
+  - Dashboards
+  - Query results
+
+Caching Rules availability
+
+- 3 types of caching rule
+  - available in
+    - Azure CDN Standard (Verizon) [*)](#az-204-relevant)
+    - Azure CDN Standard (Akamai) [*)](#az-204-relevant)
+  - Azure CDN (Microsoft)
+    - Standard rules engine
+  - Azure CDN Premium (Verizon)
+    - Premium rules engine
+
+Caching Rules
+
+- Global
+  - only 1 per endpoint
+  - override cache headers
+- Custom
+  - one or many rules
+  - file extension or file path
+  - override global rule
+- Query String
+  - default: ignore query strings
+    - next call with a different query string will deliver content from first request
+    -> most apps will not work properly I think?
+  - bypass query strings
+    - caching is disabled
+  - cache every unique URL
+    - do not use this if values change on every request (like filter box)
+    -> low hit ratio: slow performance
+
+#### Configuring Cache and Expiration Policies for Azure Redis Cache
+
+"Azure Cache for Redis is a fully managed, in-memory [*)](#az-204-relevant) cache thats enables high-performance and salable architectures."
+
+Pricing Tiers: <https://azure.microsoft.com/en-us/pricing/details/cache/>
+
+- Basic
+  - Minimal feature set
+    - Azure Private Link
+  - No SLA, no replication
+  - Development and test
+  - 250 MB to 53 GB of memory
+  - 256 to 20'000 client connections
+- Standard
+  - 2 Replicated nodes + failover
+  - 99.9% availability
+  - 250 MB to 53 GB of memory
+  - 256 to 20'000 client connections
+  - moderate to highest for network performance
+- Premium
+  - additional features
+    - Redis Data Persistence
+    - Redis Cluster
+    - passive georeplication
+  - Low latency
+  - 99.95% availability
+  - 6 to 120 GB
+  - 7500 to 40'000 client connections
+- Enterprise
+  - Full Redis feature set
+    - RedisBloom
+    - RedisTimeSeries
+    - RedisSearch
+    - active georeplication
+  - 99.999% availability
+  - 50'000 to 200'000 client connections
+- Enterprise Flash
+  - Fast non-volatile storage
+  - no support for RedisBloom, RedisTimeSeries or RedisSearch
+  - 50 to 120'000 client connections
+
+>You can scale up, but you cannot scale down!
+
+Impact of caching policy in performance and integrity of app [*)](#az-204-relevant)
+
+- Improve performance and scalability
+- Move frequently accessed data closer
+- Faster response times
+
+When to cache
+
+- repeatedly accessed data
+- data source performance (SQL Server is slower)
+- data contention ("Datenkonflikt" aka compose data from different sources)
+- physical location
+
+Managing lifetime
+
+- no default expiration
+- data exists until it iss removed
+- must set TTL manually
+
+Remove Items from Redis Cache  [*)](#az-204-relevant)
+
+- Scheduled Deletion (TTL)
+- Manual deletion
+- Eviction (Redis under pressure removes items to keep its function)
+  - volatile-lru (default) - delete oldest with ttl set
+  - allkeys-lru - delete oldest
+  - noeviction - can cause issues (cache overflow, no more adds allowed)
+  - volatile-random - removes random volatile items
+  - allkeys-random - remove random items
+  - volatile-ttl - remove items with shortest ttl remaining
+
+Cache duration
+
+- Rate of change
+  - long expiry for static data
+  - short expiry for volatile data
+- Risk of using outdated data
+  - lower TTL to match data change
+- Timing
+  - event seconds can help a lot
+
+Best Practice  [*)](#az-204-relevant)
+
+- set `maxmemory-reserved` setting, when a lot of writes
+  - start with 10%, increase when heavy loads
+- reuse client connections whenever possible
+- utilize Redis pipelining
+- try to store smaller values
+
+Example:
+
+```cs
+_cache.StringSet("myKey", "my Value", new TimeSpan(3, 0, 0)); // 3 hours
+```
+
+Demo
+
+csproj
+
+```xml
+    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+```
+
+appSettings.json
+
+```json
+  "ConnectionStrings": {
+    "CacheConnection": "myRedisCache.redis.cache.windows.net:6300,password=..."
+  },
+```
+
+Controller:
+
+```cs
+private readonly IConfiguration _configuration;
+
+public HomeController(IConfiguration configuration)
+{
+    _configuration = configuration;
+}
+
+public IActionResult Index()
+{
+    var lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
+    {
+        var cacheConnectionString = _configuration.GetConnectionString("CacheConnection");
+        return ConnectionMultiplexer.Connect(cacheConnectionString);
+    });
+
+    IDatabase cache = lazyConnection.Value.GetDatabase();
+
+    cache.Execute("PING").ToString(); // returns PONG - check Redis infrastructure
+
+    cache.Execute("FLUSHALL").ToString(); // remove all keys in cache
+
+    cache.StringSet("Message", "Hello from ASP.NET").ToString();
+    cache.StringGet("Message").ToString()};
+
+    cache.StringSet("ExpiringMessage", "Hi, I expire", TimeSpan.FromSeconds(10));
+    cache.StringGet("Message").ToString();
+
+    cache.StringGet("ExpiringMessage").ToString();
+    Thread.Sleep(10000);
+    cache.StringGet("ExpiringMessage").ToString();
+
+    // Get the client list
+    var cacheClients = cache.Execute("CLIENT", "LIST");
+
+    lazyConnection.Value.Dispose();
+
+    return View(model);
+}
+```
+
+Best Practice
+
+- In-Memory - watch out data loss
+- always set expiry time
+- add jitter to spread database load
+- avoid large object (separate in smaller object)
+- host in same region as your app (to reduce latency)
+
+Sample/Demo
+
+<https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-web-app-aspnet-core-howto?tabs=core6x>
+
+#### Implementing Application Caching Pattern
+
+Why Caching
+
+- Performance
+  - reduce round trips
+- Scalability
+  - better use of resources
+- Resilience
+  - stable, responsive
+
+Patterns
+
+1. Cache-aside Pattern
+
+   - reduce round-trips to data store
+
+     ```mermaid
+     flowchart LR;
+         Redis-Cache ----> Application  <-->  DataStore
+         Application ----> Redis-Cache
+     ```
+
+1. Content Cache Pattern
+
+     - Cache static content
+       - Images
+       - Templates
+       - Style sheets
+     - Reduces server load
+     - Redis Output Cache Provider for ASP.NET
+
+1. User Session Caching Cache Pattern
+
+      - Maintain application state
+         - Shopping cart
+      - Session cookies or local storage
+        - Limited data storage
+        - Slow performance
+
+1. Advanced Pattern: Job and Message Queuing
+
+1. Advanced Pattern: Distributed Transactions
+
+#### Configuring Redis Cache [*)](#az-204-relevant)
+
+Estimating Cache Size
+
+- Number of concurrent cached objects
+- Size of cached objects
+- Number of cache requests
+- Cache expiration policy
+
+Benchmark Tool from Redis CLI
+
+```cmd
+Redis-benchmark -q -n 100000
+```
+
+You cannot run this in Azure - create a temporary VM that contains Redis CLI and run this in it.
+
+Encryption in Transit
+
+- use TLS1.2
+- TLS 1.1 not supported
+- HTTP disabled (can be enabled)
+
+Encryption at Rest
+
+- in-memory data is not encrypted
+- Premium Tier
+  - data persistence is encrypted
+
+### 4.2 Instrument Solutions for Monitoring and Logging
+
+Activate webapp logging:
+
+`az webapp log config --name ...` [*)](#az-204-relevant)
+
+todo:
+log to filesystem: `--web-server-logging filesystem` \
+or \
+log to docker (linux only): `--docker-container-logging filesystem` \
+or \
+azureblobstorage (Windows only): `--application-logging azureblobstorage` \
+
+(filesystem logs will removed, but useful for analyzing errors)
+
+Tail logs:
+
+`az webapp log tail --name...`
+
+Tail and Filter logs:
+
+`az webapp log tail --name... --filter Error`
+
+Transient Faults: [*)](#az-204-relevant)
+
+- log
+- retry strategy
+- retry logic is already built in in most SDK (CosmosDB, ...)
+- implement patters (retry, circuit breaker)
+
+Docker Environment Variables for App Service: [*)](#az-204-relevant)
+
+- WEBSITES_CONTAINER_START_TIME_LIMIT
+- WEBSITE_ENABLE_APP_SERVICE_STORAGE = false
+  - /home directory will _not_ be shared across container instances
+- WEBSITE_WEBDEPLOY_USE_SCM = false
+  - only false will allow WebDeploy/MSDeploy
+
+#### Azure Monitor
+
+Capabilities
+
+- Infrastructure Issues
+- Detect and diagnose issues across apps and deps
+- Support operations with smart alerts and automated actions
+
+Data from
+
+- performance and functionality of apps source code
+- OS data
+- operation of Azure resource
+- tenant-level Azure services (AD)
+- any REST client
+
+#### Application Insights (Part of Azure Monitor)
+
+Capabilities
+
+- CPU, Memory
+- Exceptions
+- Custom Events and metrics in the client or server code, to track business events
+- Collect request rates response times, failure rates
+- Collect page views and load performance - reported by browser
+
+```mermaid
+flowchart LR;
+U[App Center Diagnostics UI] --- B[App Center Diagnostics]
+B <-->  W[WPF app]
+B <-->  A[Android app]
+B <-->  S[IOS app]
+B ---- I[Application Insights]
+```
+
+Telemetry ("apps" in Azure Portal)
+
+- "Smart Detection"
+  - automatic warnings
+- "Application map"
+  - helps spot performance bottlenecks
+  - visualize requests
+- "Live Metrics"
+  - real time information
+  - cpu, memory
+  - exceptions
+  - ...
+- "Failures"
+  - details about issues, exceptions, server errors
+
+Develop your naming and tagging strategy for Azure resources
+
+<https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/naming-and-tagging>
+
+How to use Insights: (same in Frontend/Backend)
+
+Nuget: Microsoft.ApplicationInsights.AspNetCore
+
+```cs
+services.AddApplicationInsightsTelemetry()
+```
+
+```json
+// AppSettings
+"ApplicationInsights": {
+  "InstrumentationKey": "...guid...from...azure...portal"
+},
+```
+
+Blazor Frontend:
+
+```json
+// AppSettings
+"CarsIslandApi": {
+  "Url": ""
+}
+```
+
+```cs
+services.AddHttpClient<ICarsIslandApiService, CarsIslandApiService>(configureClient =>
+{
+    configureClient.BaseAddress = new Uri(Configuration.GetSection("CarsIslandApi:Url").Value);
+})
+```
+
+#### Azure Application Insights Web Tests
+
+Type of tests: [*)](#az-204-relevant)
+
+- URL Ping
+- Multi-Step Web
+  - sequence of web requests to validate more complex scenarios
+- Custom Track availability
+  - most complex
+
+Action Groups
+
+Action Types:
+
+- Type
+- Name
+- Action
+
+#### Transient Faults
+
+Transient Fault challenges
+
+- detect faults
+  - determine if faults are transient
+- retry
+- retry strategy
+
+Polly - Open Source Library
+
+- Retry
+- Timeout
+- Circuit Breaker
+
+Retry Policy
+
+- Send request again, repeat after some time
+- Wait before repeat
+- Configure retry times and interval
+
+Circuit Breaker Policy
+
+- service unavailable
+- avoid resend for some time
+- when the circuit is opened, no request is sent until it is closed again
+
+Polly Nuget: Microsoft.Extensions.Http.Polly
+
+Retry Policy
+
+```cs
+public void ConfigureServices(IServiceCollection services)
+{
+    //...
+    services.AddHttpClient<ICarsIslandApiService, CarsIslandApiService>(configureClient =>
+    {
+        configureClient.BaseAddress = new Uri(Configuration.GetSection("CarsIslandApi:Url").Value);
+    })
+    .AddPolicyHandler(GetRetryPolicy(services)); // <----- NEW
+}
+```
+
+Configure Retry Policy
+
+```cs
+private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(IServiceCollection services)
+{
+    return HttpPolicyExtensions
+      // Handle HttpRequestExceptions, 408 and 5xx status codes:
+      .HandleTransientHttpError()
+      // Handle 404 not found
+      .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+      // Retry 3 times, each time wait 2, 4 and 8 seconds before retrying:
+      .WaitAndRetryAsync(new[]
+        {
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(4),
+            TimeSpan.FromSeconds(8)
+        },
+          onRetry: (outcome, timespan, retryAttempt, context) =>
+          {
+              services.BuildServiceProvider()
+                      .GetRequiredService<ILogger<CarsIslandApiService>>()?
+                      .LogError("Delaying for {delay}ms, then making retry: {retry}.", timespan.TotalMilliseconds, retryAttempt);
+          });
+}
+```
+
+Circuit Breaker
+
+```cs
+public void ConfigureServices(IServiceCollection services)
+{
+    //...
+    services.AddHttpClient<ICarsIslandApiService, CarsIslandApiService>(configureClient =>
+    {
+        configureClient.BaseAddress = new Uri(Configuration.GetSection("CarsIslandApi:Url").Value);
+    })
+    .AddPolicyHandler(GetRetryPolicy(services))
+    .AddPolicyHandler(GetCircuitBreakerPolicy(services)); // <----- NEW
+}
+```
+
+```cs
+private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(IServiceCollection services)
+{
+    return HttpPolicyExtensions
+      // Handle HttpRequestExceptions, 408 and 5xx status codes:
+      .HandleTransientHttpError()
+      .CircuitBreakerAsync(3, TimeSpan.FromSeconds(10),
+      onBreak:(result, timeSpan, context) =>
+      {
+          services.BuildServiceProvider()
+                      .GetRequiredService<ILogger<CarsIslandApiService>>()?
+                      .LogError("CircuitBreaker onBreak for {delay}ms", timeSpan.TotalMilliseconds);
+      },
+      onReset: context =>
+      {
+          services.BuildServiceProvider()
+                      .GetRequiredService<ILogger<CarsIslandApiService>>()?
+                      .LogError("CircuitBreaker closed again"); 
+      },
+      onHalfOpen: () =>
+      {
+          services.BuildServiceProvider()
+                      .GetRequiredService<ILogger<CarsIslandApiService>>()?
+                      .LogError("CircuitBreaker onHalfOpen");
+      });
+}
+```
+
+## 5. Connect to and consume Azure services and third-party services (15-20%)
