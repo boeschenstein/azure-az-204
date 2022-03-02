@@ -40,6 +40,7 @@
         - [Create durable functions workflow](#create-durable-functions-workflow)
         - [Sub-Orchestrations](#sub-orchestrations)
       - [Custom Handlers](#custom-handlers)
+    - [1.x Exam Alert](#1x-exam-alert)
   - [2. Develop for Azure storage (15-20%)](#2-develop-for-azure-storage-15-20)
     - [2.1 Develop Solutions with Cosmos DB Storage](#21-develop-solutions-with-cosmos-db-storage)
       - [Consistency](#consistency)
@@ -54,6 +55,7 @@
       - [Lease](#lease)
       - [Immutable](#immutable)
       - [Move items in Blob Storage between Storage Accounts or containers](#move-items-in-blob-storage-between-storage-accounts-or-containers)
+    - [2.x Exam Alert](#2x-exam-alert)
   - [3. Implement Azure security (20-25%)](#3-implement-azure-security-20-25)
     - [3.1 Implement User Authentication and Authorization](#31-implement-user-authentication-and-authorization)
       - [a) Management Plane: RBAC (Role Based Access Control)](#a-management-plane-rbac-role-based-access-control)
@@ -79,6 +81,7 @@
         - [Purge protection](#purge-protection)
       - [Key Vault: Keys](#key-vault-keys)
       - [Key Vault: Certificates](#key-vault-certificates)
+    - [3.x Exam Alert](#3x-exam-alert)
   - [4. Monitor, troubleshoot, and optimize Azure solutions (15-20%)](#4-monitor-troubleshoot-and-optimize-azure-solutions-15-20)
     - [4.1 Integrate caching and content delivery](#41-integrate-caching-and-content-delivery)
       - [Configuring Cache and Expiration Policies in Azure CDN](#configuring-cache-and-expiration-policies-in-azure-cdn)
@@ -90,7 +93,23 @@
       - [Application Insights (Part of Azure Monitor)](#application-insights-part-of-azure-monitor)
       - [Azure Application Insights Web Tests](#azure-application-insights-web-tests)
       - [Transient Faults](#transient-faults)
+    - [4.x Exam Alert](#4x-exam-alert)
   - [5. Connect to and consume Azure services and third-party services (15-20%)](#5-connect-to-and-consume-azure-services-and-third-party-services-15-20)
+    - [5.1 Develop an App Service Logic App](#51-develop-an-app-service-logic-app)
+      - [Components](#components)
+      - [Scheduled Triggers](#scheduled-triggers)
+      - [Triggers](#triggers)
+      - [Connectors](#connectors)
+      - [Managed Connector Types](#managed-connector-types)
+      - [Making Decisions](#making-decisions)
+      - [Custom Connector Lifecycle](#custom-connector-lifecycle)
+      - [Create Custom Template](#create-custom-template)
+    - [5.2 Implement API Management](#52-implement-api-management)
+      - [Introduction](#introduction)
+      - [Protect APIs and Improve performance](#protect-apis-and-improve-performance)
+    - [5.3 Develop Event-based Solutions](#53-develop-event-based-solutions)
+    - [5.4 Develop Message-based Solutions](#54-develop-message-based-solutions)
+    - [5.x Exam Alert](#5x-exam-alert)
 
 ## Information
 
@@ -567,6 +586,10 @@ For not supported platforms (Rust, GO, ...)
 - update host.json (`defaultExecutablePath` and `enableForwardingHttpRequest`)
 - test locally `func start` or publish to Azure
 
+### 1.x Exam Alert
+
+TODO
+
 ## 2. Develop for Azure storage (15-20%)
 
 ### 2.1 Develop Solutions with Cosmos DB Storage
@@ -669,6 +692,10 @@ via Access Policy:
 - Legal hold - you cannot modify or delete blob
 
 #### Move items in Blob Storage between Storage Accounts or containers
+
+### 2.x Exam Alert
+
+TODO
 
 ## 3. Implement Azure security (20-25%)
 
@@ -1190,6 +1217,10 @@ Demo: use certificate with SDK (using managed identity)
     // logged-in user (defined by DefaultAzureCredential) needs access to Key Vault
     var certificate = client.GetCertificateAsync(_certificateName).Result;
     ```
+
+### 3.x Exam Alert
+
+TODO
 
 ## 4. Monitor, troubleshoot, and optimize Azure solutions (15-20%)
 
@@ -1741,4 +1772,283 @@ private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(IServic
 }
 ```
 
+### 4.x Exam Alert
+
+TODO
+
 ## 5. Connect to and consume Azure services and third-party services (15-20%)
+
+### 5.1 Develop an App Service Logic App
+
+<https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-overview>
+
+Azure Logic Apps is a cloud-based platform for creating and running automated workflows that integrate your apps, data, services, and systems. With this platform, you can quickly develop highly scalable integration solutions for your enterprise and business-to-business (B2B) scenarios. As a member of Azure Integration Services, Azure Logic Apps simplifies the way that you connect legacy, modern, and cutting-edge systems across cloud, on premises, and hybrid environments.
+
+Demo
+
+- dynamic content: data from previous steps
+- definition in JSON [*)](#az-204-relevant)
+Purpose
+
+- build powerful integrations
+  - exchange data between disparate systems
+  - use pre-built customizable components
+
+#### Components
+
+- Workflow
+  - Designer
+- Trigger
+- Actions
+- Managed Connector
+  - Triggers
+  - Actions
+  - Special functions
+- Enterprise Integration Pack
+  - Schemas
+  - Models
+  - Biztalk/SAP
+
+#### Scheduled Triggers
+
+- Recurrence Trigger
+  - Start date and time
+  - fixed interval
+  - does not process missed occurrences
+- Sliding Window Trigger
+  - Process data in contiguous chunks
+  - set start date and time
+  - fixed interval
+  - processed missed occurrences
+
+#### Triggers
+
+- Polling Trigger
+  - regularly queries an endpoint
+- Push Trigger
+  - uses a webhook to receive data
+
+#### Connectors
+
+- Built-in Connectors
+  - fundamental workflow triggers and actions
+- Managed Connectors
+  - Provided by Microsoft
+  - provide access to other services
+
+#### Managed Connector Types
+
+- Managed Connector
+- On-premises Connector
+  - Sharepoint
+  - Fileshare
+- Integration Account Connector
+  - SAP
+  - Biztalk
+
+#### Making Decisions
+
+- add the logic to Logic Apps
+- control the execution flow
+- six built-in control actions
+  - condition
+  - for each
+  - switch
+  - until
+  - Scope (group actions)
+  - terminate (error handling)
+
+Creating Custom Connectors
+
+>you can't share `Logic App Connectors` with `Power Automate` or `Power Apps`
+
+#### Custom Connector Lifecycle
+
+- build API
+  - use exiting API
+  - Azure Function App
+  - Azure Web App
+  - Azure API App
+- Secure API
+  - generic OAuth 2.0
+  - OAuth 2.0
+  - Basic Authentication
+  - API Key
+- Describe API, Create Connector
+  - Open API, Swagger
+  - Postman collection
+- Use Connector
+  - authenticate
+- Share within your org
+- Certify my MS
+
+#### Create Custom Template
+
+```mermaid
+flowchart LR;
+D[Development:\n Logic App] --> A["ARM Template (json)" \n template,json \n parameters.json]
+A --> P[Production]
+```
+
+Azure Logic Apps Tools for Visual Studio 2019:
+<https://marketplace.visualstudio.com/items?itemName=VinaySinghMSFT.AzureLogicAppsToolsForVS2019>
+
+Azure Powershell: <https://docs.microsoft.com/en-us/powershell/azure/install-az-ps>
+
+Azure CLI: <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli>
+
+ARMClient: <https://github.com/projectkudu/ARMClient>
+
+Important parts:
+
+- Resource Definition (name, type, location, ...)
+- Triggers
+- Actions
+- Connections
+
+### 5.2 Implement API Management
+
+#### Introduction
+
+What is API Management
+
+- Azure Service to create consistent and modern API gateways for existing backend services.
+- It provides secure, scalable API access for your applications.
+
+Components
+
+- API gateway (worker)
+- Azure portal (admin)
+- Developer portal (docs)
+
+```mermaid
+flowchart LR;
+A[Web App] ---- G["API Gateway"]
+G --- W1[Web API] --- D1[Database]
+G --- W2[Web API] --- D2[Database]
+```
+
+Capabilities
+
+- API Gateway
+  - Accept API calls, route to backends
+  - Verify API keys, JWT Tokens, certificates, other credential
+  - Enforces usage quotas and rete limits
+  - Caches backend responses
+- Portal
+  - define or import API schema
+  - setup policies (quotas, transformation, ...)
+  - package API into products
+  - manage users
+- Developer Portal
+  - read API docs
+  - create account, API keys
+  - try out
+  - access analytics
+
+Versions, Revisions
+
+- each version can have multiple revisions
+- you can use revisions without using versions
+- you can use versions without using revisions
+- usual usage
+  - versions: breaking changes
+  - revisions: non-breaking changes
+
+Operations
+
+- API <--> API and its operations
+
+Products, Groups
+
+- Products
+  - surface to developers
+  - title
+  - description
+  - terms of use
+- Groups
+  - used to manage visibility of products to developers
+
+Products
+
+- open or protected (key)
+- can be published
+- subscription approval at product level
+- Types:
+  - Starter
+    - does not require administrator approval
+    - 5 calls per minute
+    - maximum of 100 calls per week
+  - Unlimited
+    - requires administrator approval
+    - unlimited access to the API under this product
+
+Groups
+
+- Administrators
+- Developers
+- Guests
+
+Develop your naming and tagging strategy for Azure resources
+
+<https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/naming-and-tagging>
+
+#### Protect APIs and Improve performance
+
+Concepts
+
+- Policies
+  - Change behavior thought configuration
+  - Collection of statements, executed sequentially
+  - Examples
+    - format conversion (xml -> JSON)
+    - restrict amount of incoming calls
+    - enforce existence of HTTP Headers
+    - cache response according config
+
+Examples:
+
+- Access Restriction Policies
+  - Limit call rate by key
+  - Validate JWT tokens
+  - Set usage quota by key
+  - Check HTTP header presence
+  - Limit call rate by subscription
+- Advanced Policies
+  - Mock response
+  - Forward request
+  - Retry
+  - Set request method
+  - Trace
+- Transformation Policies
+  - Convert XML --> JSON (request or response body)
+  - Convert JSON --> XML (request or response body)
+  - Find and replace string in body
+  - Set backend service
+  - Set query string param
+- Caching Policies
+  - Store to cache
+  - Get from cache
+  - Remove value form cache
+
+Policy Scope
+
+- Global scope
+- Product scope
+- API scope
+- Operation scope
+
+>inheritance: override policies defined at a higher scope
+
+When do Policies execute
+
+- Inbound
+- Backend (before forwarding to backend)
+- Outbound
+- On-Error
+
+### 5.3 Develop Event-based Solutions
+
+### 5.4 Develop Message-based Solutions
+
+### 5.x Exam Alert
