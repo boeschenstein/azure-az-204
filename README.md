@@ -108,6 +108,9 @@
       - [Introduction](#introduction)
       - [Protect APIs and Improve performance](#protect-apis-and-improve-performance)
     - [5.3 Develop Event-based Solutions](#53-develop-event-based-solutions)
+      - [Event Grid](#event-grid)
+      - [Event Hub](#event-hub)
+      - [Notification Hub](#notification-hub)
     - [5.4 Develop Message-based Solutions](#54-develop-message-based-solutions)
     - [5.x Exam Alert](#5x-exam-alert)
 
@@ -2048,6 +2051,82 @@ When do Policies execute
 - On-Error
 
 ### 5.3 Develop Event-based Solutions
+
+Event Types
+
+- Discrete
+  - report state change, actionable (Event Grid)
+- Series
+  - report a condition, time-ordered, analyzable (Event Hub)
+- User notification
+  - prompt user (or their device) for attention (Notification Hub)
+
+#### Event Grid
+
+Features
+
+- Event-based (pub/sub)
+- Publisher emit, subscribers consume
+  - examples: Azure Function, Azure Storage, custom Webhooks, ...
+- One publisher, many subscribers
+- Filtering rules
+- Scale up and down (to 0)
+  - pay what you use
+
+Register Provider = Enable Event Grid
+
+`az provider register --namespace Microsoft.EventGrid`
+
+`az provider show --namespace Microsoft.EventGrid --query "registrationState"`
+
+Pub/Sub concepts
+
+- Event: something has changed
+- Publisher: no expectations
+- Subscriber: do something with event
+
+Terminology
+
+- Events
+  - smallest unit of data
+- Publisher/Event source: <https://docs.microsoft.com/en-us/azure/event-grid/overview#event-sources>
+  - where it happened
+- Topics
+  - the endpoint where publishers send events
+- Subscriptions
+  - Event routing
+- Handlers
+  - Event handling
+
+Custom Topics
+
+- User defined
+- Same message schema as Azure topics
+- Can send custom info with message
+
+Event Handler: <https://docs.microsoft.com/en-us/azure/event-grid/overview#event-handlers>
+
+- Azure Automation
+- Azure Functions
+- Event Hubs
+- Relay Hybrid Connections
+- Logic Apps
+- Power Automate (Formerly known as Microsoft Flow)
+- Service Bus
+- Queue Storage
+- WebHooks
+
+Workflow
+
+- Create Topic
+- Send publisher events
+- Add subscriber, filtering
+
+> Every event has same metadata schema. The property called '`data`' contains event specific info.
+
+#### Event Hub
+
+#### Notification Hub
 
 ### 5.4 Develop Message-based Solutions
 
