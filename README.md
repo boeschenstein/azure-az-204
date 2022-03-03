@@ -110,7 +110,7 @@
     - [5.3 Develop Event-based Solutions](#53-develop-event-based-solutions)
       - [Event Grid](#event-grid)
       - [Event Hub](#event-hub)
-      - [Notification Hub](#notification-hub)
+      - [Notification Hub (ANH)](#notification-hub-anh)
     - [5.4 Develop Message-based Solutions](#54-develop-message-based-solutions)
     - [5.x Exam Alert](#5x-exam-alert)
 
@@ -2126,7 +2126,146 @@ Workflow
 
 #### Event Hub
 
-#### Notification Hub
+Overview
+
+- Scalable event processing service
+- Big data scenarios
+- Millions of events/second
+- Decouples sending and receiving data
+- Integration with Azure and non-Azure services
+- Capture events to Azure Blob Storage or Data Lake
+
+Scenarios
+
+- Telemetry
+- Data archival
+- Transaction processing
+- Anomaly detection
+
+Components
+
+- Namespace
+  - Container for Events Hubs
+- Event producers
+  - send data to Event Hub
+- Partitions
+  - bucket of messages
+- Consumer Groups
+  - View of an Event Hub
+- Subscribers
+  - Reads data from EVent Hubs
+
+Event Hub Namespace
+
+- Scoping Container
+- Contains on or more Event Hubs
+- Options apply to all
+  - applicable for pricing
+- Throughput units
+  - pre-purchased unit of capacity
+  - set this at namespace level
+
+`az eventhubs namespace create --resource-group ... --location ... --name ... --sku Standard`
+
+`az eventhubs eventhub create --name ... --namespace ... --message-retention 3 --partition-count 4 -g ...`
+
+- retention 1-7 days
+- partition count 2-32
+
+Send Events to Event Hub
+
+- Install .NET SDK
+- Obtain connection info
+  - Namespace, Endpoint with key
+- Open Connection
+  - EventHubProducerClient (cachable)
+- Prepare data
+  - convert to binary (limits)
+- Send data
+  - single or batch events
+
+Partitions = Landing place for Events
+
+- Like a bucket for event messages
+- Hold events time-ordered as they arrive
+- Events not deleted once read
+  - deleted according retention period
+- Events Hubs decides which partition events are sent do
+  - can specify partition with partition key
+- Maximum 32 partitions
+- Create as many partitions as expected concurrent subscribers
+
+Demo: send data
+
+Read Events from Event Hub
+
+- Install .NET SDK
+- Obtain connection info
+  - Namespace, Endpoint with key
+- Open Connection
+  - EventHubConsumerClient (or EventProcessorClient for more features)
+- Retrieve data
+  - connection remains open
+  - can specify partition, offset, date, and sequence number (to avoid reading same data again)
+- Decode data
+  - returned event has metadata
+  - decode from binary
+
+Get data from `partitionEvent.Data.Body.Span`
+
+> Namespaces hold multiple Event Hubs
+
+#### Notification Hub (ANH)
+
+Overview
+
+- Send Push notifications to user
+  - app -> users event messages
+- Send to multiple platforms (IOS, Android, Windows)
+- AHN = abstraction over platform notification services
+
+Features
+
+- Cross-platform
+  - frontend, backend
+- Multiple deliver formats
+  - push to user
+  - push to device
+  - localization
+  - silent push
+- Telemetry
+- Scalable
+
+Components
+
+- Platform notification service (PNS)
+  - vendor specific
+- Notification hub
+  - communicates with PNS
+- Namespaces
+  - Regional collection of hubs
+
+Namespace
+
+- Namespace is a collection of Notification Hubs
+- One namespace per application (generally)
+- One hub per application environment
+  - 1 hub for DEV, 1 hub, UAT, 1 hub for PROD
+- Credentials at namespace level
+- Billing at namespace level
+
+Send Notifications Workflow
+
+- Setup PNS
+  - vendor specific (implement each platform)
+- Setup ANH
+  - Create namespace and hub (portal)
+- MAP PNS to ANH
+  - Apply keys (find from PNS)
+- Register devices
+  - use .NET SDK (webapi backend)
+- Send pushes
+  - .NET SDK via webapi (targeted, silent, broadcast, etc.)
 
 ### 5.4 Develop Message-based Solutions
 
