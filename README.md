@@ -106,6 +106,7 @@
       - [Create Custom Template](#create-custom-template)
     - [5.2 Implement API Management](#52-implement-api-management)
       - [Introduction](#introduction)
+      - [Tiers](#tiers)
       - [Protect APIs and Improve performance](#protect-apis-and-improve-performance)
     - [5.3 Develop Event-based Solutions](#53-develop-event-based-solutions)
       - [Event Grid](#event-grid)
@@ -115,7 +116,7 @@
       - [Azure Queue Storage](#azure-queue-storage)
       - [Azure Service Bus](#azure-service-bus)
         - [Topics](#topics)
-    - [Azure Queue Storage vs. Message Bus](#azure-queue-storage-vs-message-bus)
+      - [Azure Queue Storage vs. Message Bus](#azure-queue-storage-vs-message-bus)
     - [5.x Exam Alert](#5x-exam-alert)
 
 ## Information
@@ -2000,6 +2001,16 @@ Develop your naming and tagging strategy for Azure resources
 
 <https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/naming-and-tagging>
 
+#### Tiers
+
+<https://azure.microsoft.com/en-us/pricing/details/api-management/>
+
+|                  | Consumption                                                                        | Developer                                | Basic                            | Standard                           | Premium                                        | Isolated(Preview)                                                  |
+| ---------------- | ---------------------------------------------------------------------------------- | ---------------------------------------- | -------------------------------- | ---------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| Info             | Lightweight and serverless version of API Management service, billed per execution | Non-production use cases and evaluations | Entry-level production use cases | Medium-volume production use cases | High-volume or enterprise production use cases | Enterprise production use cases requiring high degree of isolation |
+| Cache (per unit) | External only [*)](#az-204-relevant)                                               | 10 MB                                    | 50 MB                            | 1 GB                               | 5 GB                                           | 5 GB                                                               |
+| Developer portal | No                                                                                 | Yes                                      | Yes                              | Yes                                | Yes                                            | Yes                                                                |
+
 #### Protect APIs and Improve performance
 
 Concepts
@@ -2480,7 +2491,7 @@ Create Azure Service Bus
 
 Demo
 
-### Azure Queue Storage vs. Message Bus
+#### Azure Queue Storage vs. Message Bus
 
 |                       | Queue Storage | Service Bus |
 | --------------------: | :-----------: | :---------: |
@@ -2496,3 +2507,10 @@ Demo
 |                       |               |             |
 
 ### 5.x Exam Alert
+
+Areas of Focus
+
+- Service Tiers
+- Caching
+- Access Restriction and Authentication
+- Policy Definition
