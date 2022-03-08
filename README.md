@@ -112,6 +112,10 @@
       - [Event Hub](#event-hub)
       - [Notification Hub (ANH)](#notification-hub-anh)
     - [5.4 Develop Message-based Solutions](#54-develop-message-based-solutions)
+      - [Azure Queue Storage](#azure-queue-storage)
+      - [Azure Service Bus](#azure-service-bus)
+        - [Topics](#topics)
+    - [Azure Queue Storage vs. Message Bus](#azure-queue-storage-vs-message-bus)
     - [5.x Exam Alert](#5x-exam-alert)
 
 ## Information
@@ -2268,5 +2272,227 @@ Send Notifications Workflow
   - .NET SDK via webapi (targeted, silent, broadcast, etc.)
 
 ### 5.4 Develop Message-based Solutions
+
+Traditional
+
+```mermaid
+flowchart LR;
+O[User Order] ---- S["Server"]
+```
+
+> No processing if any Service go down
+
+Message-based Architecture
+
+```mermaid
+flowchart LR;
+O[User Order] ---- Q["Order Queue"]
+Q ---- F[Order \n Fulfillment \n Service] 
+F ---- P["Post-Order \n Queue"]
+P ---- A["Analytics \n Ingestion \n Service"]
+```
+
+> No Data Loss if any Service go down
+
+Benefits
+
+- App logic modularity (smaller chunks)
+- Fault Tolerance between modules
+
+#### Azure Queue Storage
+
+Fully managed service
+
+- needs Azure Storage Account (V2 general purpose)
+- Queues are created within a single storage account
+- Supports messages up to 64 KiB in size
+  - <https://docs.microsoft.com/en-us/azure/storage/queues/scalability-targets>
+- Messages exist within a single queue
+- Number of messages limited only by size of storage account (more restrictions below)
+- supports a configurable time-to-live per message (7 days default)
+
+Data Redundancy
+
+- [Link in this doc](#data-redundancy-missing-in-the-az-204-book)
+
+Queue URL Structure
+
+- `https://<storage account>.queue.core.windows.net/<queue name>`
+
+Security
+
+- encrypted by default
+- Azure Storage stored access policies can work with queues (check limits)
+- HTTP or HTTPS
+- support for authorizations:
+  - Shared Key
+  - Shared access signature (SAS)
+  - Azure AD
+
+Visibility Timeout
+
+- message delivered to consumers are not deleted immediately from queue
+- not visible in queue (for a period of time = visibility timeout)
+- enables fault tolerance
+- configurable for queue
+
+Scalability limits for queues
+
+- A single queue cannot exceed 500 TiB
+- A single message cannot exceed 64 KiB
+- A queue supports no more than 5 stored access policies
+- A single storage account can support 20'000 messages per sec
+  - (1 KiB message)
+- A single queue can support 2'000 messages per sec
+  - (1 KiB message)
+
+Interact with queue using CLI
+
+- `az storage queue create --name <my queue>`
+- `az storage queue delete --name <my queue>`
+- `az storage message peek --queue-name <my queue>` // peak does not remove message
+- `az storage message get --queue-name <my queue>` // get does remove message, gives popReceipt
+- `az storage message clear --queue-name <my queue>`
+- `az storage message delete --id <id> --pop-receipt <popReceipt from get> --queue-name <my queue>`
+
+Demo
+
+#### Azure Service Bus
+
+Overview
+
+- Fully managed enterprise message broker service
+- enable multiple modes of messaging
+- with integrations for common messaging systems
+
+```textik
+            +----Azure Service Bus---------+                     
+            |  +---Namespace-------------+ |                     
+            |  |   +-----------------+   | |                     
+            |  |   |                 |   | |                     
+Producer  --|--|--->      Queue      ----|-|-------->  Consumer         
+            |  |   |                 |   | |                     
+            |  |   +-----------------+   | |                     
+            |  |                         | |                     
+            |  |   +-----------------+   | | /------>  Subscriber
+            |  |   |                 |   | | |                   
+Publisher --|--|--->       Topic     ----|-|-|------>  Subscriber
+            |  |   |                 |   | | |                   
+            |  |   +-----------------+   | | \------>  Subscriber
+            |  +-------------------------+ |                     
+            +------------------------------+                     
+```
+
+Azure Service Bus (# advantages over Queue Storage)
+
+- HTTP, HTTPS, AMQP #
+- Messaging for Queue, Topic
+- Namespace: performance tiers:
+  - Basic
+  - Standard
+  - Premium
+- Advanced configurability #
+  - Ordering
+  - Batching
+  - Dead Letter Queue (DLQ)
+  - Duplicate detection
+
+Performance tiers:
+
+- Basic
+  - no topics
+- Standard
+  - pay as you go
+  - variable throughput/latency
+  - shared resources
+  - automatic scaling
+  - max. 256 KB per message
+  - not geo-disaster recovery or availability zones
+- Premium
+  - fixed pricing
+  - fixed throughput (messaging units)
+  - dedicated resources
+  - scaling rules required
+  - max 1 MB per message
+  - geo-disaster recovery or availability zones
+
+Message ordering
+
+- support FIFO ordering by leveraging sessions
+- supported in queues, topics
+- must be enabled on queue or topic
+
+Scaling
+
+- Standard tier namespace support partitioning of queues, topics
+- Premium tier: no partitioning allowed
+- Partitioning enables separate messaging stores and brokers for queues/topic
+- partition key
+  - Partitioned queues/topics can use a partition key
+  - Transaction on partition queue/topic must use partition key
+
+Dead-Letter Queue (DLQ)
+
+- for queue/topic
+- handles unprocessed messages
+
+Azure Queue Storage: Use Cases
+
+- Storage need > 80 GB
+- transaction log needed
+
+Create Azure Service Bus
+
+- `az servicebus queue create --namespace-name ... --name ... --resource-group ...`
+- `az servicebus queue delete --namespace-name ... --name ...`
+
+Demo
+
+##### Topics
+
+```mermaid
+flowchart LR;
+O[User Order] ---- Q["Order Queue"]
+Q ---- F[Order \n Fulfillment \n Service] 
+F ---- P["Order \n Topic"]
+P -- filter ** -->  A1["Expedited \n Shipping Handler"]
+P -- filter ** -->  A2["Standard \n Shipping Handler"]
+P --  no filter --> A3["Analytics & \n Financial Reports"]
+```
+
+Topic Information
+
+- enable 1:n relationship between messages and consumers
+- A consumer creates a subscription to a topic
+- Subscriptions act as dedicated queues for a subscriber (config options)
+  - every subscriber gets it's own queue
+- Filter **
+  - boolean
+  - SQL filter
+  - Correlation filter (for different properties on message)
+
+Create Azure Service Bus
+
+- `az servicebus topic create --namespace-name ... --name ... --resource-group ...`
+- `az servicebus topic delete --namespace-name ... --name ...`
+
+- `az servicebus topic subscription create --namespace-name ... --name ... --topic-name ...`
+
+Demo
+
+### Azure Queue Storage vs. Message Bus
+
+|                       | Queue Storage | Service Bus |
+| --------------------: | :-----------: | :---------: |
+|               Storage |  > 80 GB  🙂   | < 80 GB  😐  |
+|       Transaction Log |       ✅       |      ❌      |
+|        Track progress |       ✅       |      ❌      |
+|                       |   Polling 😐   | AMQP 1.0 🙂  |
+|         FIFO ordering |       ❌       |      ✅      |
+| duplication detection |       ❌       |      ✅      |
+|     message size 256k |       ❌       |      ✅      |
+|     topic based (1:n) |       ❌       |      ✅      |
+|            Batch mode |       ❌       |      ✅      |
+|                       |               |             |
 
 ### 5.x Exam Alert
