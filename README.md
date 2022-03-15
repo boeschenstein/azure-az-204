@@ -12,10 +12,15 @@
     - [Service Principal](#service-principal)
     - [Managed Identities](#managed-identities)
   - [Use the portal to create an Azure AD application and service principal that can access resources](#use-the-portal-to-create-an-azure-ad-application-and-service-principal-that-can-access-resources)
-  - [Microsoft identity platform](#microsoft-identity-platform)
+  - [Microsoft Identity Platform](#microsoft-identity-platform)
   - [1. Develop Azure compute solutions (25-30%)](#1-develop-azure-compute-solutions-25-30)
     - [VM](#vm)
+    - [Container](#container)
     - [Docker](#docker)
+      - [Azure Container Registry (ACR)](#azure-container-registry-acr)
+        - [ACR tasks](#acr-tasks)
+      - [Azure Container Instances (ACI)](#azure-container-instances-aci)
+      - [AKS (Azure Kubernetes Service)](#aks-azure-kubernetes-service)
       - [Docker Compose](#docker-compose)
       - [Azure Directory (AD)](#azure-directory-ad)
     - [1.1 App Service Web Apps](#11-app-service-web-apps)
@@ -44,7 +49,7 @@
   - [2. Develop for Azure storage (15-20%)](#2-develop-for-azure-storage-15-20)
     - [2.1 Develop Solutions with Cosmos DB Storage](#21-develop-solutions-with-cosmos-db-storage)
       - [Consistency](#consistency)
-      - [Container](#container)
+      - [Container](#container-1)
       - [Use Primary Key (ID) as Partition Key](#use-primary-key-id-as-partition-key)
     - [2.2 Develop Solutions with Blob Storage](#22-develop-solutions-with-blob-storage)
       - [Data Redundancy (missing in the AZ-204 Book)](#data-redundancy-missing-in-the-az-204-book)
@@ -142,7 +147,12 @@ Omnishare? --> OmniSharp?
 
 ## Service Principal vs. Managed Identities
 
-Instead of creating a service principal, consider using managed identities for Azure resources for your application identity. If your code runs on a service that supports managed identities and accesses resources that support Azure AD authentication, managed identities are a better option for you. To learn more about managed identities for Azure resources, including which services currently support it, see What is managed identities for Azure resources?.
+Instead of creating a service principal, consider using managed identities for Azure resources for your application identity.
+
+- If your code runs on a service that supports managed identities
+- and accesses resources that support Azure AD authentication,
+
+managed identities are a better option for you. To learn more about managed identities for Azure resources, including which services currently support it, see "What is managed identities for Azure resources"?.
 
 ### Service Principal
 
@@ -157,7 +167,7 @@ Here are some of the benefits of using managed identities:
 - You don't need to manage credentials. Credentials aren’t even accessible to you.
 - You can use managed identities to authenticate to any resource that supports  [Azure AD authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/overview-authentication), including your own applications.
 - Managed identities can be used without any additional cost.
-- (Managed identities for Azure resources is the new name for the service formerly known as Managed Service Identity (MSI)).
+- (`Managed identities for Azure resources` is the new name for the service formerly known as `Managed Service Identity (MSI)`).
 
 User-Assigned: Service Principal behind
 
@@ -169,7 +179,7 @@ var defaultCredentialOptions = new DefaultCredentialOptions { ManagedIdentityCli
 // works locally AND in production (looks for a valid credential - uses current user locally)
 var defaultCredential = new DefaultCredential(); 
 
-var containerClient = new BlobContainerClient(ur, defaultCredential);
+var containerClient = new BlobContainerClient(uri, defaultCredential);
 ```
 
 ## Use the portal to create an Azure AD application and service principal that can access resources
@@ -178,7 +188,7 @@ var containerClient = new BlobContainerClient(ur, defaultCredential);
 
 <https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal>
 
-## Microsoft identity platform
+## Microsoft Identity Platform
 
 Samples: <https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/>
 
@@ -186,15 +196,195 @@ Samples: <https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-op
 
 ### VM
 
+Components
+
+- Resource Group
+- VM Size
+- Network
+- Images
+- Storage/Virtual Disks
+
+Demo: Create VM in
+
+- Azure Portal
+- CL
+- PowerShell (Az Module)
+- ARM Template
+- REST API
+- Azure Cloud Shell
+
+PowerShell Installation
+
+- Install PowerShell: <https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-7.3.0>
+- Run as admin: `Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber`
+
+### Container
+
+- Docker
+- Azure Container Registry (ACR)
+- Azure Container Instances (ACI)
+
+Fundamentals
+
+- Tools
+- Binaries, libraries, other components
+- Container Image
+- Container
+- App in Container
+  - small, portable
+- Container Registries
+
+Container vs VM: <https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/containers-vs-vm>
+
+Working with Containers in Azure
+
+```mermaid
+flowchart LR;
+D[Dockerfile \n App1 \n Binaries/Libraries \n Image \n build \n *Development Workstation*] -- push --> R[Azure \n Container \n Registry] -- pull --> I[App1 \n Binaries/Libraries \n Image \n az container create \n *Azure Container Instances*]
+```
+
 ### Docker
 
 <https://docs.microsoft.com/en-us/azure/container-registry/>
 
 Write Dockerfile: <https://docs.docker.com/develop/develop-images/dockerfile_best-practices/>
 
-Azure Container Registry service tiers: <https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus>
+example:
 
-Tutorial: AKS <https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-prepare-app>
+```dockerfile
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+RUN mkdir /app
+WORKDIR /app
+COPY ./webapp/bin/Release/netcoreapp3.1/publish ./
+COPY ./config.sh ./
+RUN bash config.sh
+EXPOSE 80
+ENTRYPOINT ["dotnet", "webapp.dll"]
+```
+
+Build: `docker build -t webappimage:v1 .`
+
+Hello World (minimal Web App) in docker
+
+```cmd
+rem dotnet new webapp --> create new webapi .net Core 3.1 in Visual Studio, Linux Docker enabled
+dotnet run 
+REM now check app in browser: http://localhost:5000/WeatherForecast
+
+dotnet publish -c Release
+```
+
+Dockerfile, created from Visual Studio
+
+```dockerfile
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
+WORKDIR /src
+COPY ["webapp/webapp.csproj", "webapp/"]
+RUN dotnet restore "webapp/webapp.csproj"
+COPY . .
+WORKDIR "/src/webapp"
+RUN dotnet build "webapp.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "webapp.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "webapp.dll"]
+```
+
+Build
+
+```cmd
+REM move Dockerfile 1 level up and run on sln level
+docker build -t webappimage:v1 .
+```
+
+Run
+
+```cmd
+docker run --name webapp --publish 8080:5000 --detach webappimage:v1
+```
+
+Test app: <http://localhost:8080/WeatherForecast>
+
+TODO: app is running fine in Docker, but web does not work? ("The connection to the server was reset while the page was loading.")
+
+#### Azure Container Registry (ACR)
+
+- Build, store, and manage container images
+- Key component of building a CI/CD pipeline
+- ACR Tasks for container image automation
+- Service tiers: <https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus>
+
+Security
+
+- AD Identities: User, Principal
+- ACR Admin
+- `az acr login` or `docker login`
+- RBAC
+  - <https://docs.microsoft.com/en-us/azure/container-registry/container-registry-roles>
+- Security Options: <https://docs.microsoft.com/en-us/azure/container-registry/container-registry-authentication>
+
+Demo
+
+- `az acr create --resource-group <name> --name <unique_name> --sku Standard`
+- `az acr login --name <unique_name>`
+- `ACR_LOGINSERVER=$(az acr show --name <unique_name> --query loginServer --output tsv)`
+- `docker tag webappimage:v1 $ACR_LOGINSERVER/webappimage:v1`
+- `docker push $ACR_LOGINSERVER/webappimage:v1`
+- `az acr build --image "webappimage:v1-acr-task" --registry $ACR_NAME .`
+
+##### ACR tasks
+
+- An ACR task will take our code locally and the Dockerfile
+- zip that all up, and ship that into Azure Container Registry and
+- kick off a container build, and
+- push that into our Container Registry all in Azure
+
+#### Azure Container Instances (ACI)
+
+- Serverless Container Platform
+- Access app
+  - via internet
+  - via Virtual Network
+- Windows, Linux Containers
+- Resource request for
+  - CPU
+  - Memory
+- Azure Files for persistent Storage
+- Deployed in Groups
+- Restart Policies
+  - always
+  - on Failure
+  - never
+
+Deploy Containers in ACI from Container Registries
+
+- Azure Container Registry
+- Registries
+  - Docker Hub
+  - other registries
+- Authenticate
+  - Server
+  - Username, Password
+
+Create Service Principal
+
+- `az acr show --name <acr_name>`
+- `az ad sp create-for-rbac ...`
+- `az ad sp show ...`
+
+#### AKS (Azure Kubernetes Service)
+
+Tutorial <https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-prepare-app>
 
 #### Docker Compose
 
@@ -2015,7 +2205,7 @@ Develop your naming and tagging strategy for Azure resources
 
 Concepts
 
-- Policies
+- Policies: <https://docs.microsoft.com/en-us/azure/api-management/set-edit-policies>
   - Change behavior thought configuration
   - Collection of statements, executed sequentially
   - Examples
@@ -2514,3 +2704,4 @@ Areas of Focus
 - Caching
 - Access Restriction and Authentication
 - Policy Definition
+  - todo <https://docs.microsoft.com/en-us/azure/api-management/set-edit-policies>
