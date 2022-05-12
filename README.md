@@ -664,15 +664,46 @@ Check "Storage Explorer": Connect to your "Local Storage Emulator": you should s
 
 #### Durable Function
 
+There are currently four durable function types in Azure Functions: orchestrator, activity, entity, and client.
+
+More details: <https://docs.microsoft.com/en-us/learn/modules/implement-durable-functions/3-durable-functions-types-features>
+
 - Client "Starter" Function
   - initiate a new orchestration
   - use any trigger
+  - Any non-orchestrator function can be a client function:
+    - it is defined by `durable client output binding`
+  - wrapper for `Orchestrator function`, `Entity functions`
 - Orchestrator Function
   - defines the steps in the workflow
   - handle errors
+  - triggered by configured bindings
+  - not directly runnable: run a `Client Function` which runs this
+  - can have many different types of actions, including activity functions, sub-orchestrations, waiting for external events, HTTP, and timers
+  - durable, reliable (proceed after recycle/reboot), long-running (until ever)
 - Activity Function
   - implements a step in the workflow
+    - example: The tasks involve checking the inventory, charging the customer, and creating a shipment. Each task would be a separate activity function
   - use any bindings
+- Entity Functions
+  - Trigger Type "Entity Trigger"
+  - define operations for reading and updating small pieces of state ('Durable Entities' or 'Durable Entities')
+  - triggered by configured bindings
+  - not directly runnable: run a `Client Function` which runs this
+
+Task Hub
+
+- a logical container for durable storage resources that are used for orchestrations and entities
+- Azure Storage resources
+  - A task hub in Azure Storage consists of the following resources:
+    - 1 or more control queues.
+    - 1 work-item queue.
+    - 1 history table.
+    - 1 instances table.
+    - 1 storage container containing one or more lease blobs.
+    - A storage container containing large message payloads, if applicable.
+  - All of these resources are created automatically in the configured Azure Storage account when orchestrator, entity, or activity functions run or are scheduled to run.
+- other storage providers available
 
 Current recommendation:
 
@@ -741,7 +772,7 @@ approval
   - `(Invoke-WebRequest http://localhost:7071/api/Function1_HttpStart).content`
 - Check
   - debug capability
-  - commandline outputs
+  - command line outputs
   - return of web request
     - call URL of "statusQueryGetUri" to check status
       - check `"runtimeStatus": "Completed"`
@@ -1772,6 +1803,8 @@ Data from
 - any REST client
 
 #### Application Insights (Part of Azure Monitor)
+
+<https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview>
 
 Capabilities
 
